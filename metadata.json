@@ -3,7 +3,7 @@
   "description": "Take the apps search out of overview.",
   "uuid": "search-light@icedman.github.com",
   "shell-version": [
-    "48", "49"
+    "42", "43", "44", "45", "46", "47", "48", "49"
   ],
   "url": "https://github.com/icedman/search-light",
   "schema-id": "org.gnome.shell.extensions.search-light",
