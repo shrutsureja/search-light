@@ -9,7 +9,6 @@
  * Note: Full integration testing requires a running GNOME Shell session.
  */
 
-imports.gi.versions.Gtk = '4.0';
 const { GObject } = imports.gi;
 
 // Mock the BaseSearchProvider for testing

@@ -125,11 +125,26 @@ export const SystemCommandsProvider = class SystemCommandsProvider extends BaseS
   }
 
   _lockScreen() {
-    trySpawnCommandLine('loginctl lock-session');
+    // Try multiple lock commands for compatibility
+    const lockCommands = [
+      'loginctl lock-session',
+      'gnome-screensaver-command --lock',
+      'xdg-screensaver lock',
+    ];
+    
+    for (const cmd of lockCommands) {
+      try {
+        trySpawnCommandLine(cmd);
+        break; // Success, exit loop
+      } catch (e) {
+        // Try next command
+        continue;
+      }
+    }
   }
 
   _logout() {
-    trySpawnCommandLine('gnome-session-quit --logout --no-prompt');
+    trySpawnCommandLine('gnome-session-quit --logout');
   }
 
   _suspend() {
@@ -137,11 +152,11 @@ export const SystemCommandsProvider = class SystemCommandsProvider extends BaseS
   }
 
   _restart() {
-    trySpawnCommandLine('gnome-session-quit --reboot --no-prompt');
+    trySpawnCommandLine('gnome-session-quit --reboot');
   }
 
   _shutdown() {
-    trySpawnCommandLine('gnome-session-quit --power-off --no-prompt');
+    trySpawnCommandLine('gnome-session-quit --power-off');
   }
 
   _openSettings() {
