@@ -137,5 +137,20 @@
 	<summary>Animation speed</summary>
 	<description>Change the speed of the appear and disappear window effect.</description>
     </key>
+    <key type="b" name="enable-system-commands">
+	<default>true</default>
+	<summary>Enable System Commands Provider</summary>
+	<description>Enable searching for system commands (lock, logout, restart, etc.)</description>
+    </key>
+    <key type="b" name="enable-calculator">
+	<default>true</default>
+	<summary>Enable Calculator Provider</summary>
+	<description>Enable inline calculator functionality</description>
+    </key>
+    <key type="b" name="enable-recent-files">
+	<default>true</default>
+	<summary>Enable Recent Files Provider</summary>
+	<description>Enable searching for recently opened files</description>
+    </key>
   </schema>
 </schemalist>

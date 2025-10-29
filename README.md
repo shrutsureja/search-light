@@ -32,6 +32,23 @@ This is a Gnome Shell extension that takes the apps search widget out of Overvie
 * Colors, background, borders customization
 * Blurred background
 * Multi-monitor support
+* **Extensible search providers**
+  * System commands (Lock, Logout, Restart, etc.)
+  * Inline calculator
+  * Recent files search
+  * Plugin architecture for custom providers
+
+## Search Providers
+
+Search Light now includes built-in search providers for enhanced functionality:
+
+- **System Commands**: Quickly access system actions like Lock Screen, Log Out, Restart, etc.
+- **Calculator**: Type mathematical expressions (e.g., `calc: 2 + 2` or just `2 + 2`) for instant results
+- **Recent Files**: Search and open recently accessed files
+
+### Extensibility
+
+Developers can create custom search providers to extend Search Light's functionality. See [PROVIDER_API.md](PROVIDER_API.md) for the complete developer guide.
 
 ## Blurred background
 

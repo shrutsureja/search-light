@@ -119,6 +119,18 @@ export const SettingsKeys = () => {
       default_value: 100,
       widget_type: 'scale',
     },
+    'enable-system-commands': {
+      default_value: true,
+      widget_type: 'switch',
+    },
+    'enable-calculator': {
+      default_value: true,
+      widget_type: 'switch',
+    },
+    'enable-recent-files': {
+      default_value: true,
+      widget_type: 'switch',
+    },
   });
 
   return settingsKeys;

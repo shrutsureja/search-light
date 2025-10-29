@@ -31,6 +31,7 @@ import { trySpawnCommandLine } from 'resource:///org/gnome/shell/misc/util.js';
 
 import { Timer } from './timer.js';
 import { Style } from './style.js';
+import { ProviderManager } from './providers/providerManager.js';
 
 import { TintEffect } from './effects/tint_effect.js';
 import { MonochromeEffect } from './effects/monochrome_effect.js';
@@ -357,7 +358,14 @@ export default class SearchLightExt extends Extension {
 
   _updateProviders() {
     this._removeProviders();
-    this._providers = [];
+    
+    // Initialize provider manager if not already done
+    if (!this._providerManager) {
+      this._providerManager = new ProviderManager(this._settings);
+      this._providerManager.initialize();
+    }
+    
+    this._providers = this._providerManager.getEnabledProviders();
 
     let _search = Main.overview.searchController;
     if (!_search) return;
@@ -386,6 +394,11 @@ export default class SearchLightExt extends Extension {
     }
 
     this._providers = null;
+    
+    if (this._providerManager) {
+      this._providerManager.destroy();
+      this._providerManager = null;
+    }
   }
 
   _setupBackground() {
