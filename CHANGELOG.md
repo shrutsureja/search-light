@@ -1,13 +1,5 @@
 ## ROADMAP
 
-## Upcoming Features
-
-* **Extensible Provider Architecture** (In Progress)
-  * Plugin-based search provider system
-  * Built-in providers: System Commands, Calculator, Recent Files
-  * Developer API for custom providers
-  * Settings integration for enabling/disabling providers
-
 ## release 38
 
 * fork gnome 48 from 47
