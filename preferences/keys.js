@@ -131,6 +131,10 @@ export const SettingsKeys = () => {
       default_value: true,
       widget_type: 'switch',
     },
+    'enable-web-search': {
+      default_value: true,
+      widget_type: 'switch',
+    },
   });
 
   return settingsKeys;

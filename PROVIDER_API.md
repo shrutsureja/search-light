@@ -27,7 +27,7 @@ The `ProviderManager` class (in `providers/providerManager.js`) handles:
 
 ## Built-in Providers
 
-Search Light includes three built-in providers:
+Search Light includes four built-in providers:
 
 ### 1. System Commands Provider
 - **ID**: `system-commands`
@@ -57,6 +57,16 @@ Search Light includes three built-in providers:
   - Fuzzy search by filename
   - File icons
   - Quick actions: Open, Show in Files
+
+### 4. Web Search Provider
+- **ID**: `web-search`
+- **Prefix**: `web:`
+- **Purpose**: Web search and URL handling
+- **Features**:
+  - Open URLs directly (e.g., `github.com` or `https://example.com`)
+  - Search browser history (last 100 sites)
+  - Web search with default search engine
+  - Quick actions: Open, Copy URL
 
 ## Creating a Custom Provider
 

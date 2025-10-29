@@ -152,5 +152,10 @@
 	<summary>Enable Recent Files Provider</summary>
 	<description>Enable searching for recently opened files</description>
     </key>
+    <key type="b" name="enable-web-search">
+	<default>true</default>
+	<summary>Enable Web Search Provider</summary>
+	<description>Enable web search, URL opening, and browser history search</description>
+    </key>
   </schema>
 </schemalist>

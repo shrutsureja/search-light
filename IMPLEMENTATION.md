@@ -118,7 +118,8 @@ Search Light Extension
 └── Built-in Providers
     ├── SystemCommandsProvider
     ├── CalculatorProvider
-    └── RecentFilesProvider
+    ├── RecentFilesProvider
+    └── WebSearchProvider
 ```
 
 ### Key Files
@@ -128,7 +129,8 @@ Search Light Extension
 3. **providers/systemCommandsProvider.js** - System commands
 4. **providers/calculatorProvider.js** - Inline calculator
 5. **providers/recentFilesProvider.js** - Recent files search
-6. **PROVIDER_API.md** - Developer documentation
+6. **providers/webSearchProvider.js** - Web search and URL handling
+7. **PROVIDER_API.md** - Developer documentation
 
 ### Settings Schema
 
@@ -136,6 +138,7 @@ New boolean settings for enabling/disabling providers:
 - `enable-system-commands` (default: true)
 - `enable-calculator` (default: true)
 - `enable-recent-files` (default: true)
+- `enable-web-search` (default: true)
 
 ## Testing
 
@@ -153,11 +156,13 @@ Since this is a GNOME Shell extension, full integration testing requires:
    - System commands: Type "lock", "restart", etc.
    - Calculator: Type "calc: 2+2" or "2+2"
    - Recent files: Type filename
+   - Web search: Type "github.com" or "web: search term"
 
 ## Security Considerations
 
 ✅ **Safe Expression Evaluation**: Calculator uses Function constructor (safer than eval)
 ✅ **Input Sanitization**: Math expressions are sanitized before evaluation
+✅ **URL Validation**: URLs are validated before opening
 ✅ **User Confirmation**: System commands (logout, restart, shutdown) now show GNOME's native confirmation dialogs
 ✅ **No Remote Code Execution**: All providers run locally
 ✅ **CodeQL Clean**: 0 security vulnerabilities detected

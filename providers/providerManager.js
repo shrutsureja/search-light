@@ -13,6 +13,7 @@
 import { SystemCommandsProvider } from './systemCommandsProvider.js';
 import { CalculatorProvider } from './calculatorProvider.js';
 import { RecentFilesProvider } from './recentFilesProvider.js';
+import { WebSearchProvider } from './webSearchProvider.js';
 
 export class ProviderManager {
   constructor(settings) {
@@ -39,6 +40,11 @@ export class ProviderManager {
         id: 'recent-files',
         class: RecentFilesProvider,
         settingKey: 'enable-recent-files',
+      },
+      {
+        id: 'web-search',
+        class: WebSearchProvider,
+        settingKey: 'enable-web-search',
       },
     ];
   }
