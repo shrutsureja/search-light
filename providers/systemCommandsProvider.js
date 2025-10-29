@@ -10,7 +10,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-import Gio from 'gi://Gio';
 import St from 'gi://St';
 import { BaseSearchProvider } from './baseProvider.js';
 import { trySpawnCommandLine } from 'resource:///org/gnome/shell/misc/util.js';
@@ -126,112 +125,23 @@ export const SystemCommandsProvider = class SystemCommandsProvider extends BaseS
   }
 
   _lockScreen() {
-    const loginManager = Gio.DBus.system.proxy_new_sync(
-      'org.freedesktop.login1',
-      '/org/freedesktop/login1',
-      'org.freedesktop.login1.Manager',
-      null
-    );
-    
-    try {
-      const session = Gio.DBus.session;
-      const screensaver = session.call_sync(
-        'org.gnome.ScreenSaver',
-        '/org/gnome/ScreenSaver',
-        'org.gnome.ScreenSaver',
-        'Lock',
-        null,
-        null,
-        Gio.DBusCallFlags.NONE,
-        -1,
-        null
-      );
-    } catch (e) {
-      console.error('Failed to lock screen:', e);
-      trySpawnCommandLine('gnome-screensaver-command --lock');
-    }
+    trySpawnCommandLine('loginctl lock-session');
   }
 
   _logout() {
-    try {
-      const session = Gio.DBus.session;
-      session.call(
-        'org.gnome.SessionManager',
-        '/org/gnome/SessionManager',
-        'org.gnome.SessionManager',
-        'Logout',
-        new GLib.Variant('(u)', [0]),
-        null,
-        Gio.DBusCallFlags.NONE,
-        -1,
-        null,
-        null
-      );
-    } catch (e) {
-      console.error('Failed to logout:', e);
-      trySpawnCommandLine('gnome-session-quit --logout');
-    }
+    trySpawnCommandLine('gnome-session-quit --logout --no-prompt');
   }
 
   _suspend() {
-    try {
-      const loginManager = Gio.DBus.system.call_sync(
-        'org.freedesktop.login1',
-        '/org/freedesktop/login1',
-        'org.freedesktop.login1.Manager',
-        'Suspend',
-        new GLib.Variant('(b)', [true]),
-        null,
-        Gio.DBusCallFlags.NONE,
-        -1,
-        null
-      );
-    } catch (e) {
-      console.error('Failed to suspend:', e);
-      trySpawnCommandLine('systemctl suspend');
-    }
+    trySpawnCommandLine('systemctl suspend');
   }
 
   _restart() {
-    try {
-      const session = Gio.DBus.session;
-      session.call(
-        'org.gnome.SessionManager',
-        '/org/gnome/SessionManager',
-        'org.gnome.SessionManager',
-        'Reboot',
-        null,
-        null,
-        Gio.DBusCallFlags.NONE,
-        -1,
-        null,
-        null
-      );
-    } catch (e) {
-      console.error('Failed to restart:', e);
-      trySpawnCommandLine('systemctl reboot');
-    }
+    trySpawnCommandLine('gnome-session-quit --reboot --no-prompt');
   }
 
   _shutdown() {
-    try {
-      const session = Gio.DBus.session;
-      session.call(
-        'org.gnome.SessionManager',
-        '/org/gnome/SessionManager',
-        'org.gnome.SessionManager',
-        'Shutdown',
-        null,
-        null,
-        Gio.DBusCallFlags.NONE,
-        -1,
-        null,
-        null
-      );
-    } catch (e) {
-      console.error('Failed to shutdown:', e);
-      trySpawnCommandLine('systemctl poweroff');
-    }
+    trySpawnCommandLine('gnome-session-quit --power-off --no-prompt');
   }
 
   _openSettings() {
