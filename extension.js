@@ -67,7 +67,7 @@ export default class SearchLightExt extends Extension {
     this.searchEngineIcons = null;
     this._builder = null;
     this._switch = null;
-    this.settings = this.getSettings();
+    this.settings = this.getSettings(schemaId);
   }
   _setSearchEngines() {
     this._decoder = new TextDecoder();

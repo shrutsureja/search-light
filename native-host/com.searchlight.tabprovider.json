@@ -1,0 +1,9 @@
+{
+  "name": "com.searchlight.tabprovider",
+  "description": "Search Light Tab Provider - Native Messaging Host",
+  "path": "/usr/bin/searchlight-tab-provider",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://EXTENSION_ID_PLACEHOLDER/"
+  ]
+}

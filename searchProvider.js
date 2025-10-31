@@ -2,12 +2,16 @@
 import Gio from 'gi://Gio';
 import St from 'gi://St';
 import { getBrowserList } from './utils.js';
+import { BrowserTabCache } from './browserTabs.js';
 
 
 export class SearchProvider {
     constructor(extension) {
         this._extension = extension;
         this.searchEngineIcons = extension.searchEngineIcons;
+        this._tabCache = new BrowserTabCache();
+        this._enableBrowserTabs = true; // TODO: make this a setting
+        this._currentSearchTerms = [];
     }
     /**
      * The application of the provider.
@@ -51,13 +55,27 @@ export class SearchProvider {
      * @returns {string} Browser command to use
      */    
     _getBrowserCommand() {
-        this.settings = this._extension.getSettings();
+        this.settings = this._extension.settings;
         const browserIndex = this.settings.get_int('selected-browser') || 0;
         const availableBrowsers = getBrowserList ();
         if (browserIndex < availableBrowsers.length) {
             return availableBrowsers[browserIndex].command;
         }
         return 'xdg-open';
+    }
+
+    /**
+     * Get the browser name for display
+     * @returns {string} Browser name
+     */
+    _getBrowserName() {
+        this.settings = this._extension.settings;
+        const browserIndex = this.settings.get_int('selected-browser') || 0;
+        const availableBrowsers = getBrowserList();
+        if (browserIndex < availableBrowsers.length) {
+            return availableBrowsers[browserIndex].name || 'browser';
+        }
+        return 'browser';
     }
 
     /**
@@ -70,9 +88,37 @@ export class SearchProvider {
      */
     activateResult(result, terms) {
         const context = new Gio.AppLaunchContext;
-        this.settings = this._extension.getSettings();
+        this.settings = this._extension.settings;
         const searchEngine = this.settings.get_int('search-engine');
         const browserCommand = this._getBrowserCommand();
+
+        // Check if this is a browser tab result
+        if (result.startsWith('tab:')) {
+            const tabId = parseInt(result.substring(4));
+            const tabs = this._tabCache.getTabs();
+            const tab = tabs.find(t => t.id === tabId);
+            
+            if (tab && tab.url) {
+                console.log(`[SearchProvider] Activating existing tab: ${tab.title}`);
+                
+                // Try to activate the existing tab using wmctrl to focus browser window
+                try {
+                    // Use xdotool or wmctrl to bring browser window to focus
+                    const cmd = `wmctrl -a "${browserCommand}" || ${browserCommand} "${tab.url}"`;
+                    Gio.AppInfo.create_from_commandline(cmd, null, 2).launch([], context);
+                } catch (error) {
+                    console.error('[SearchProvider] Error activating tab, opening URL:', error);
+                    // Fallback: just open the URL
+                    try {
+                        const fallbackCmd = `${browserCommand} "${tab.url}"`;
+                        Gio.AppInfo.create_from_commandline(fallbackCmd, null, 2).launch([], context);
+                    } catch (e) {
+                        console.error('[SearchProvider] Fallback failed:', e);
+                    }
+                }
+                return;
+            }
+        }
 
         var cmd = `${browserCommand} `;
 
@@ -104,7 +150,7 @@ export class SearchProvider {
     }
 
 
-    /**ando padrão do Linux que a
+    /**
      * Launch the search provider.
      *
      * This method is called when a search provider is activated. A provider can
@@ -147,7 +193,7 @@ export class SearchProvider {
 
     getResultMetas(results, cancellable = null) {
         try {
-            this.settings = this._extension.getSettings();
+            this.settings = this._extension.settings;
 
             const searchEngine = this.settings.get_int('search-engine');
             const iconData = this._extension.searchEngineIcons[searchEngine];
@@ -157,26 +203,78 @@ export class SearchProvider {
 
             return new Promise((resolve, reject) => {
                 const resultMetas = [];
+                const terms = this._currentSearchTerms;
 
                 for (let identifier of results) {
-                    const meta = {
-                        id: identifier,
-                        name: 'Web Search',
-                        description: 'Launch web search',
-                        createIcon: (size) => {
+                    // Check if this is a browser tab result
+                    if (identifier.startsWith('tab:')) {
+                        const tabId = parseInt(identifier.substring(4));
+                        const tabs = this._tabCache.getTabs();
+                        const tab = tabs.find(t => t.id === tabId);
+                        
+                        if (tab) {
+                            let tabIcon = null;
+                            
+                            // Use web browser icon for all tabs for consistency
+                            tabIcon = Gio.icon_new_for_string('web-browser');
+                            
+                            // Format URL to look like a file path
+                            let urlPath = tab.url || '';
+                            
+                            // Clean up the URL for display
                             try {
-                                return new St.Icon({
-                                    gicon,
-                                    width: size * scaleFactor,
-                                    height: size * scaleFactor,
-                                    icon_size: size * scaleFactor
-                                });
-                            } catch (iconError) {
-                                return null;
+                                const url = new URL(tab.url);
+                                // Remove protocol and www
+                                urlPath = url.hostname.replace(/^www\./, '') + url.pathname + url.search;
+                                // Add leading slash if not present
+                                if (!urlPath.startsWith('/')) {
+                                    urlPath = '/' + urlPath;
+                                }
+                            } catch (e) {
+                                // Invalid URL, use as is
                             }
+                            
+                            const meta = {
+                                id: identifier,
+                                name: tab.title || 'Untitled',
+                                description: urlPath,
+                                createIcon: (size) => {
+                                    try {
+                                        return new St.Icon({
+                                            gicon: tabIcon,
+                                            width: size * scaleFactor,
+                                            height: size * scaleFactor,
+                                            icon_size: size * scaleFactor
+                                        });
+                                    } catch (iconError) {
+                                        return null;
+                                    }
+                                }
+                            };
+                            resultMetas.push(meta);
                         }
-                    };
-                    resultMetas.push(meta);
+                    } else {
+                        // Regular web search result
+                        const searchQuery = terms.join(' ');
+                        const meta = {
+                            id: identifier,
+                            name: `Search the web`,
+                            description: searchQuery,
+                            createIcon: (size) => {
+                                try {
+                                    return new St.Icon({
+                                        gicon,
+                                        width: size * scaleFactor,
+                                        height: size * scaleFactor,
+                                        icon_size: size * scaleFactor
+                                    });
+                                } catch (iconError) {
+                                    return null;
+                                }
+                            }
+                        };
+                        resultMetas.push(meta);
+                    }
                 }
 
                 resolve(resultMetas);
@@ -199,8 +297,44 @@ export class SearchProvider {
      */
     getInitialResultSet(terms, cancellable = null) {
         console.log('[SearchProvider] getInitialResultSet:', terms);
+        
+        // Store terms for use in getResultMetas
+        this._currentSearchTerms = terms;
+        
         return new Promise((resolve, reject) => {
-            const identifiers = ['Web Search'];
+            const identifiers = [];
+            
+            // Search browser tabs if enabled
+            if (this._enableBrowserTabs && terms.length > 0) {
+                try {
+                    // Reload tabs from cache
+                    this._tabCache.loadTabs();
+                    
+                    const query = terms.join(' ');
+                    const matchingTabs = this._tabCache.searchTabs(query);
+                    
+                    console.log(`[SearchProvider] Found ${matchingTabs.length} matching tabs for "${query}"`);
+                    
+                    // Add tab results (limit to top 8 for better UX)
+                    // Sort by relevance: active tabs first, then pinned, then others
+                    const sortedTabs = matchingTabs.sort((a, b) => {
+                        if (a.active !== b.active) return b.active ? 1 : -1;
+                        if (a.pinned !== b.pinned) return b.pinned ? 1 : -1;
+                        return 0;
+                    });
+                    
+                    sortedTabs.slice(0, 8).forEach(tab => {
+                        identifiers.push(`tab:${tab.id}`);
+                    });
+                } catch (error) {
+                    console.error('[SearchProvider] Error searching tabs:', error);
+                }
+            }
+            
+            // Add the web search option at the end (only if there's a search query)
+            if (terms.length > 0) {
+                identifiers.push('Web Search');
+            }
 
             resolve(identifiers);
         });

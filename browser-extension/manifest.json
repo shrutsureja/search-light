@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Search Light Tab Provider",
+  "version": "1.0.0",
+  "description": "Provides browser tab information to Search Light GNOME extension",
+  "permissions": [
+    "tabs",
+    "nativeMessaging"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "48": "icon48.svg",
+    "128": "icon128.svg"
+  }
+}
